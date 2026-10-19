@@ -1,4 +1,4 @@
-name: backtest-gold
+name:/github/workflows.
 on:
   schedule:
     - cron: "0 5 * * 0"
