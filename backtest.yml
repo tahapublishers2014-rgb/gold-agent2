@@ -1,0 +1,28 @@
+name: backtest-gold
+on:
+  schedule:
+    - cron: "0 5 * * 0"
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: backtest-gold
+  cancel-in-progress: true
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - run: python make_backtest.py
+      - name: commit result
+        run: |
+          git config user.name "gold-bot"
+          git config user.email "gold-bot@users.noreply.github.com"
+          git add backtest.json || true
+          git diff --cached --quiet || (git commit -m "update backtest" && git pull --rebase -q && git push)

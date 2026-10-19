@@ -1,0 +1,425 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0e1217">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>ایجنت طلا</title>
+<style>
+:root{
+  --bg:#f1f3f5; --surface:#fff; --fg:#14181f; --muted:#5d6673; --line:#dde1e6;
+  --gold:#8f6c0e; --gold-soft:#f3e8c6; --good:#1f7a52; --bad:#b83a3a; --warn:#9a6200; --info:#2a6f97;
+  --font:system-ui,"Segoe UI",Tahoma,"Noto Sans Arabic","Noto Naskh Arabic",sans-serif;
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#0e1217; --surface:#161c24; --fg:#e8ebef; --muted:#97a1ae; --line:#27303b;
+  --gold:#e0b84f; --gold-soft:#2c2614; --good:#4cc38a; --bad:#f06b66; --warn:#e8b04a; --info:#6fb3e0; color-scheme:dark}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.85 var(--font);
+  padding-block:calc(14px + env(safe-area-inset-top,0px)) calc(40px + env(safe-area-inset-bottom,0px));
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+#app{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+h1{margin:0;font-size:26px;line-height:1.3;color:var(--gold)}
+h2{font-size:16px;margin:0 0 10px}
+p{margin:0}
+.sub,.note{color:var(--muted);font-size:13.5px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px;min-width:0}
+.top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap}
+.pill{display:inline-block;border-radius:999px;padding:1px 10px;font-size:12.5px;border:1px solid var(--line);color:var(--muted)}
+.pill.ok{color:var(--good);border-color:var(--good)} .pill.stale{color:var(--warn);border-color:var(--warn)} .pill.demo{color:var(--bad);border-color:var(--bad)}
+button{font:inherit;color:inherit;background:var(--surface);border:1px solid var(--line);border-radius:9px;padding:6px 14px;min-height:40px;cursor:pointer}
+button[aria-pressed=true]{background:var(--gold-soft);border-color:var(--gold);font-weight:700}
+button.primary{background:var(--gold);border-color:var(--gold);color:var(--bg);font-weight:700}
+button:focus-visible,a:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+a{color:var(--info)}
+.banner{border-color:var(--gold);background:var(--gold-soft)}
+.errbox{border-color:var(--warn);color:var(--warn);font-size:13.5px}
+.bias{font-size:28px;font-weight:800;line-height:1.35}
+.pos{color:var(--good)} .neg{color:var(--bad)} .neu{color:var(--warn)}
+.hero-top{display:flex;flex-wrap:wrap;gap:4px 14px;align-items:baseline;justify-content:space-between}
+.meter{direction:ltr;position:relative;height:12px;border-radius:6px;margin:14px 0 4px;display:flex;overflow:hidden;border:1px solid var(--line)}
+.meter i{flex:1}.meter .a{background:color-mix(in srgb,var(--bad) 35%,var(--surface))}.meter .b{background:color-mix(in srgb,var(--warn) 25%,var(--surface))}.meter .c{background:color-mix(in srgb,var(--good) 35%,var(--surface))}
+.meter b{position:absolute;top:-3px;bottom:-3px;width:4px;margin-left:-2px;background:var(--fg);border-radius:2px}
+.ends{direction:ltr;display:flex;justify-content:space-between;font-size:12px;color:var(--muted)}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:4px 14px;margin-top:12px;font-size:14px}
+.facts div{display:flex;justify-content:space-between;gap:8px;border-bottom:1px dashed var(--line);padding-block:3px;min-width:0}
+.facts span:first-child{color:var(--muted)} .facts b{direction:ltr;font-variant-numeric:tabular-nums}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.votes{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:6px}
+.vote{display:flex;justify-content:space-between;align-items:center;gap:6px;border:1px solid var(--line);border-radius:8px;padding:4px 10px;font-size:13.5px;min-width:0}
+.vote em{font-style:normal;font-weight:800}
+.alerts{display:flex;flex-direction:column;gap:6px}
+.alert{display:flex;gap:8px;align-items:flex-start;border-radius:8px;padding:7px 10px;border-inline-start:4px solid var(--c);background:color-mix(in srgb,var(--c) 9%,var(--surface));font-size:14px;min-width:0}
+.alert .lv{flex:none;font-size:12px;font-weight:700;color:var(--c);min-width:42px}
+.alert .tx{min-width:0;overflow-wrap:anywhere}
+.tg{display:inline-block;font-size:11.5px;color:var(--muted);border:1px solid var(--line);border-radius:10px;padding:0 7px;margin-inline-end:6px}
+.l-good{--c:var(--good)}.l-bad{--c:var(--bad)}.l-warn{--c:var(--warn)}.l-info{--c:var(--info)}
+.plan p{padding-block:3px;overflow-wrap:anywhere}
+.plan .first{font-weight:700}
+.chart{direction:ltr;overflow:hidden}
+.chart svg{display:block;width:100%}
+.chart text{fill:var(--muted);font:11px var(--font)}
+.chart .grid{stroke:var(--line)} .chart .up{stroke:var(--good);fill:var(--good)} .chart .dn{stroke:var(--bad);fill:var(--bad)}
+.chart .m50{stroke:var(--gold);fill:none;stroke-width:1.4}.chart .m200{stroke:var(--info);fill:none;stroke-width:1.4}
+.legend{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12.5px;color:var(--muted);margin-top:6px}
+.news{display:flex;gap:8px;border-bottom:1px dashed var(--line);padding-block:6px;font-size:14px;min-width:0}
+.news .ar{flex:none;font-weight:800;width:16px;text-align:center}
+.news .bd{min-width:0;overflow-wrap:anywhere}.news .mt{display:block;color:var(--muted);font-size:12.5px}
+.fund p{padding-block:2px}
+.th{border:1px solid var(--line);border-radius:10px;padding:8px 10px;margin-top:8px;border-inline-start:4px solid var(--c);min-width:0}
+.th h3{margin:0;font-size:14.5px;display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+.th .st{font-size:12.5px;font-weight:700;color:var(--c);flex:none}
+.th .why{color:var(--muted);font-size:12.5px}.th .tx{font-size:14px;overflow-wrap:anywhere}
+.th .ex{font-size:12.5px;color:var(--muted);overflow-wrap:anywhere}
+.t-up{--c:var(--good)}.t-dn{--c:var(--bad)}.t-fl{--c:var(--muted)}
+.term{border-bottom:1px dashed var(--line);padding-block:7px;font-size:14px;overflow-wrap:anywhere}
+.term b{color:var(--gold);direction:ltr;unicode-bidi:isolate}
+.term .fu{color:var(--muted);font-size:12.5px;display:block;direction:ltr;text-align:start;unicode-bidi:isolate}
+.term .ef{display:block}
+details{border:1px solid var(--line);border-radius:10px;padding:6px 10px;margin-top:10px}
+summary{cursor:pointer;font-weight:700;min-height:36px;display:flex;align-items:center}
+.verdict{border-width:2px;border-color:var(--c);background:color-mix(in srgb,var(--c) 7%,var(--surface))}
+.v-wait{--c:var(--warn)}.v-buy{--c:var(--good)}.v-sell{--c:var(--bad)}
+.kick{font-size:12.5px;color:var(--muted)}
+.vt{font-size:26px;font-weight:800;line-height:1.4;color:var(--c);margin:2px 0 6px}
+.why{list-style:none;margin:8px 0 0;padding:0;display:flex;flex-direction:column;gap:5px}
+.why li{display:flex;gap:8px;font-size:14.5px;min-width:0}.why li span:last-child{min-width:0;overflow-wrap:anywhere}
+.why .mk{flex:none;width:18px;text-align:center;font-weight:800}
+.m-good{color:var(--good)}.m-bad{color:var(--bad)}.m-info{color:var(--muted)}
+.sub2{font-size:13.5px;font-weight:700;margin:12px 0 2px}
+.bul{margin:0;padding-inline-start:20px;font-size:14px}.bul li{padding-block:1px;overflow-wrap:anywhere}
+.sc{border:1px solid var(--line);border-radius:10px;padding:8px 10px;margin-top:8px;min-width:0}
+.sc .hd{display:flex;justify-content:space-between;gap:8px;font-weight:700}
+.sc .bar{height:8px;border-radius:4px;background:var(--line);margin:6px 0;overflow:hidden;direction:ltr}
+.sc .bar i{display:block;height:100%;background:var(--c)}
+.sc.s-up{--c:var(--good)}.sc.s-down{--c:var(--bad)}.sc.s-range{--c:var(--warn)}
+.sc p{font-size:14px;overflow-wrap:anywhere}.sc .tg2{font-size:12.5px;color:var(--muted)}
+.calc{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-block:8px}
+.calc label{display:flex;flex-direction:column;font-size:12.5px;color:var(--muted);gap:2px;min-width:0}
+input[type=number]{font:inherit;color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:6px 8px;min-height:40px;width:100%;direction:ltr}
+.pl{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:6px;margin-block:8px}
+.pl div{border:1px solid var(--line);border-radius:8px;padding:6px 10px;min-width:0}
+.pl small{display:block;color:var(--muted);font-size:12px}.pl b{direction:ltr;unicode-bidi:isolate;font-variant-numeric:tabular-nums}
+.cd{border-bottom:1px dashed var(--line);padding-block:7px;font-size:14px}
+.cd .nm{font-weight:700}.cd .when{color:var(--gold);font-size:13px}
+.tfh{font-weight:700;margin-top:10px}
+.pat{border-inline-start:4px solid var(--c);padding:4px 10px;margin-top:6px;font-size:14px;background:color-mix(in srgb,var(--c) 8%,var(--surface));border-radius:6px;overflow-wrap:anywhere}
+.pat.b1{--c:var(--good)}.pat.b-1{--c:var(--bad)}.pat.b0{--c:var(--muted)}
+.pat small{display:block;color:var(--muted);font-size:12.5px}
+.gauge{border:1px solid var(--line);border-radius:10px;padding:8px 10px;margin-top:8px}
+.gauge b{color:var(--gold)}
+.bt td,.bt th{padding:3px 6px;font-size:13px;text-align:start}
+.tbl{overflow-x:auto}.tbl table{border-collapse:collapse;min-width:260px;width:100%}
+.jr{display:flex;justify-content:space-between;gap:8px;border-bottom:1px dashed var(--line);padding-block:5px;font-size:14px;align-items:center}
+.jr button{min-height:32px;padding:2px 10px}
+select{font:inherit;color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:6px 8px;min-height:40px;width:100%}
+.foot{font-size:12.5px;color:var(--muted);text-align:center}
+</style>
+</head>
+<body>
+<div id="app">
+  <header class="top">
+    <div><h1>ایجنت طلا</h1><p class="sub">طلای جهانی XAU/USD · ۱۶ سبک · هشدار خوب و بد · حدس خبری</p></div>
+    <div style="text-align:end"><span id="pill" class="pill">در حال بارگذاری...</span><br><button id="reload" style="margin-top:6px">تازه‌سازی</button></div>
+  </header>
+  <div id="msg"></div>
+  <main id="main" style="display:flex;flex-direction:column;gap:14px"></main>
+  <p class="foot">این برنامه احتمال و سناریو نشان می‌دهد، نه پیش‌بینی قطعی و نه مشاوره‌ی مالی. حد ضرر و مدیریت سرمایه با خودت است.</p>
+</div>
+<script>
+(function(){
+'use strict';
+var $=function(i){return document.getElementById(i)};
+function el(t,p){var e=document.createElement(t);p=p||{};for(var k in p){if(k==='class')e.className=p[k];else if(k==='text')e.textContent=p[k];else if(k.slice(0,2)==='on')e[k]=p[k];else e.setAttribute(k,p[k]);}
+  for(var i=2;i<arguments.length;i++){var c=arguments[i];if(c==null)continue;if(Array.isArray(c))c.forEach(function(x){if(x!=null)e.append(x.nodeType?x:document.createTextNode(x))});else e.append(c.nodeType?c:document.createTextNode(c));}return e;}
+var fa=new Intl.NumberFormat('en-US',{maximumFractionDigits:1,minimumFractionDigits:1});
+var fmt=function(x,d){return x==null?'—':Number(x).toLocaleString('en-US',{minimumFractionDigits:d==null?1:d,maximumFractionDigits:d==null?1:d})};
+var LV={good:'خوب',bad:'بد',warn:'احتیاط',info:'نکته'};
+var state={data:null,view:0,filter:'all'};
+function label(s){return s>=40?['صعودی قوی','pos']:s>=15?['متمایل به صعود','pos']:s>-15?['خنثی / بدون جهت مشخص','neu']:s>-40?['متمایل به نزول','neg']:['نزولی قوی','neg'];}
+function arrow(v){return v>0?['▲','pos','صعودی']:v<0?['▼','neg','نزولی']:['■','neu','خنثی'];}
+function sg(x){return (x>0?'+':'')+x;}
+function ageText(h){return h<1?'کمتر از یک ساعت پیش':h<48?Math.round(h)+' ساعت پیش':Math.round(h/24)+' روز پیش';}
+
+function load(){
+  $('pill').textContent='در حال بارگذاری...';$('pill').className='pill';
+  return fetch('data.json?t='+Date.now(),{cache:'no-store'}).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json();})
+   .then(function(d){state.data=d;render();})
+   .catch(function(e){ $('pill').textContent='بدون داده';$('pill').className='pill stale';
+      $('msg').replaceChildren(el('div',{class:'card errbox',text:'داده‌ای بارگذاری نشد. اگر تازه نصب کرده‌ای، اولین به‌روزرسانی خودکار تا چند دقیقه‌ی دیگر انجام می‌شود. ('+e.message+')'}));});
+}
+
+function render(){
+  var d=state.data, main=$('main'), msg=$('msg'); main.replaceChildren(); msg.replaceChildren();
+  var ageMin=(Date.now()-new Date(d.updated).getTime())/60000;
+  var t=new Date(d.updated).toLocaleString('fa-IR',{timeZone:'Asia/Tehran',hour:'2-digit',minute:'2-digit',month:'short',day:'numeric'});
+  var pill=$('pill');
+  if(d.demo){pill.textContent='نمونه (ساختگی)';pill.className='pill demo';}
+  else if(ageMin>120){pill.textContent='قدیمی · '+t;pill.className='pill stale';}
+  else{pill.textContent='به‌روز · '+t;pill.className='pill ok';}
+  if(d.demo)msg.append(el('div',{class:'card banner',text:'این داده‌ی ساختگی است و فقط برای نمایش کار برنامه به‌کار رفته. به‌روزرسانی واقعی خودکار جایگزین آن می‌شود.'}));
+  if(d.error)msg.append(el('div',{class:'card errbox',text:'آخرین به‌روزرسانی خودکار ناموفق بود و داده‌ی قبلی نمایش داده می‌شود. (احتمالاً محدودیت یاهو یا گوگل؛ بعداً خودش دوباره تلاش می‌کند.)'}));
+  if(!d.demo&&ageMin>120)msg.append(el('div',{class:'card errbox',text:'داده بیش از ۲ ساعت قدمت دارد. تحلیل قیمت و اخبار ممکن است کهنه باشد.'}));
+
+  if(d.simple){main.append(simpleCard(d),scenCard(d.simple));var cc0=calCard(d);if(cc0)main.append(cc0);var pc0=planCard(d);if(pc0)main.append(pc0);}
+  var lb=label(d.overall), r=d.reps[state.view]||d.reps[0];
+  var hero=el('section',{class:'card','aria-live':'polite'});
+  hero.append(el('h2',{text:'امتیازها و اعداد کلیدی'}),el('p',{class:'note',text:'امتیاز از ۱۰۰− (خیلی نزولی) تا ۱۰۰+ (خیلی صعودی) است و صفر یعنی بی‌طرف. این‌ها فقط میانگین‌اند؛ تصمیم نهایی همان «الان چه کار کنم؟» در بالاست که مانع‌ها و تناقض‌ها را هم حساب می‌کند.'}),
+    el('div',{class:'hero-top'},el('span',{class:'bias '+lb[1],text:lb[0]}),el('span',{class:'sub',text:'امتیاز '+sg(d.overall)+' از ۱۰۰'})));
+  var m=el('div',{class:'meter',role:'img','aria-label':'امتیاز '+d.overall},el('i',{class:'a'}),el('i',{class:'b'}),el('i',{class:'c'}));
+  var mk=el('b');mk.style.left=((d.overall+100)/2)+'%';m.append(mk);
+  hero.append(m,el('div',{class:'ends'},el('span',{text:'نزولی'}),el('span',{text:'صعودی'})));
+  var f=el('div',{class:'facts'});
+  function row(k,v){f.append(el('div',null,el('span',{text:k}),el('b',{text:v})));}
+  row('تکنیکال',sg(d.tech));row('اخبار',d.news?sg(d.news.bias):'—');
+  var dr=d.reps.filter(function(x){return x.tf==='1d'})[0]||d.reps[0];
+  row('قیمت (روزانه)',fmt(dr.price,2));
+  if(dr.sup)row('حمایت نزدیک',fmt(dr.sup));if(dr.res)row('مقاومت نزدیک',fmt(dr.res));
+  row('نوسان معمول (ATR)',fmt(dr.atr));
+  hero.append(f);
+  if(dr.sup&&dr.res)hero.append(el('p',{class:'note',style:'margin-top:10px',text:'سناریوی صعودی با عبور پایدار از '+fmt(dr.res)+' تقویت می‌شود؛ سناریوی نزولی با شکست '+fmt(dr.sup)+'.'}));
+  hero.append(el('p',{class:'note',style:'margin-top:4px',text:'ترکیب امتیاز: ۷۵٪ تکنیکال و ۲۵٪ اخبار.'}));
+  main.append(hero);
+
+  if(d.pro&&!d.simple){
+    var pl=el('section',{class:'card plan'});pl.append(el('h2',{text:'برنامه‌ی معامله و مدیریت ریسک'}));
+    d.pro.lines.forEach(function(ln,i){pl.append(el('p',{class:i===0?'first':'',text:ln}));});
+    main.append(pl);
+  }
+
+  var cdc=candleCard(d);if(cdc)main.append(cdc);var snc=sentCard(d);if(snc)main.append(snc);
+  var vc=el('section',{class:'card'});vc.append(el('h2',{text:'رأی سبک‌ها'}));
+  var tabs=el('div',{class:'tabs'});
+  d.reps.forEach(function(x,i){tabs.append(el('button',{'aria-pressed':String(i===state.view),onclick:function(){state.view=i;render();}},x.label));});
+  vc.append(tabs);
+  var vg=el('div',{class:'votes'}),nb=0,ns=0;
+  r.votes.forEach(function(v){var a=arrow(v.v);if(v.v>0)nb++;else if(v.v<0)ns++;vg.append(el('div',{class:'vote'},el('span',{text:v.name}),el('em',{class:a[1],'aria-label':a[2],text:a[0]})));});
+  vc.append(vg,el('p',{class:'note',style:'margin-top:10px',text:nb+' صعودی · '+ns+' نزولی · '+(r.votes.length-nb-ns)+' خنثی (از '+r.votes.length+' سبک دارای داده‌ی کافی) · امتیاز این بازه '+sg(r.score)}));
+  main.append(vc);
+
+  var all=[];
+  d.extra.forEach(function(a){all.push({lvl:a.lvl,tag:'کلی',text:a.text});});
+  r.alerts.forEach(function(a){var mm=a.text.match(/^\[(.+?)\]\s*(.*)$/);all.push(mm?{lvl:a.lvl,tag:mm[1],text:mm[2]}:{lvl:a.lvl,tag:'کلاسیک',text:a.text});});
+  var ord={bad:0,good:1,warn:2,info:3};all.sort(function(a,b){return ord[a.lvl]-ord[b.lvl];});
+  var cnt={all:all.length,good:0,bad:0,warn:0,info:0};all.forEach(function(a){cnt[a.lvl]++;});
+  var ac=el('section',{class:'card'});ac.append(el('h2',{text:'هشدارها'}));
+  var ft=el('div',{class:'tabs'});
+  ['all','bad','good','warn','info'].forEach(function(k){ft.append(el('button',{'aria-pressed':String(state.filter===k),onclick:function(){state.filter=k;render();}},(k==='all'?'همه':LV[k])+' ('+cnt[k]+')'));});
+  var box=el('div',{class:'alerts'});
+  all.filter(function(a){return state.filter==='all'||a.lvl===state.filter;}).forEach(function(a){
+    box.append(el('div',{class:'alert l-'+a.lvl},el('span',{class:'lv',text:LV[a.lvl]}),el('span',{class:'tx'},el('span',{class:'tg',text:a.tag}),a.text)));});
+  if(!box.children.length)box.append(el('p',{class:'note',text:'موردی در این دسته نیست.'}));
+  ac.append(ft,box);main.append(ac);
+
+  if(d.candles&&d.candles.length){
+    var cc=el('section',{class:'card'});cc.append(el('h2',{text:'نمودار روزانه'}));
+    var host=el('div',{class:'chart'});cc.append(host,el('div',{class:'legend'},el('span',{style:'color:var(--gold)',text:'— میانگین ۵۰'}),el('span',{style:'color:var(--info)',text:'— میانگین ۲۰۰'}),el('span',{text:'خط‌چین سبز: حمایت · قرمز: مقاومت'})));
+    main.append(cc);requestAnimationFrame(function(){chart(host,d.candles,dr);});
+  }
+
+  if(d.news){
+    var n=d.news,nl=label(n.bias),nc=el('section',{class:'card'});nc.append(el('h2',{text:'اخبار و حدس خبری'}));
+    nc.append(el('p',null,'جهت‌گیری خبری: ',el('b',{class:nl[1],text:nl[0]}),' (امتیاز '+sg(n.bias)+') · اطمینان: '+n.conf+' · '+n.n+' خبر، '+n.n_imp+' خبر اثرگذار'));
+    if(n.note)nc.append(el('p',{class:'note',text:n.note}));
+    var list=el('div');
+    n.top.forEach(function(x){var a=arrow(x.score);
+      var tt=x.link?el('a',{href:x.link,target:'_blank',rel:'noopener',text:x.title}):document.createTextNode(x.title);
+      list.append(el('div',{class:'news'},el('span',{class:'ar '+a[1],text:a[0]}),el('div',{class:'bd'},tt,el('span',{class:'mt',text:x.source+' · '+ageText(x.age_h)+' · '+(x.why||'')}))));});
+    if(!n.top.length)list.append(el('p',{class:'note',text:'خبر اثرگذار روشنی پیدا نشد.'}));
+    nc.append(list,el('p',{class:'note',text:'حدس فقط از تیتر خبرها ساخته شده و واکنش واقعی بازار ممکن است برعکس باشد.'}));
+    main.append(nc);
+    if(n.fund)main.append(fundCard(n.fund));
+  }
+  var bh=el('div');main.append(bh);btCard(bh);main.append(journalCard());
+  var tc=termsCard(d);if(tc)main.append(tc);
+}
+
+
+function simpleCard(d){
+  var S=d.simple,c=el('section',{class:'card verdict v-'+S.key,'aria-live':'polite'});
+  c.append(el('p',{class:'kick',text:'الان چه کار کنم؟'}),el('div',{class:'vt',text:S.title}),el('p',{text:S.head}));
+  if(S.confidence&&S.confidence!=='—')c.append(el('p',{class:'note',text:'سطح اطمینان نشانه‌ها: '+S.confidence}));
+  c.append(el('p',{class:'sub2',text:'چرا؟'}));
+  var ul=el('ul',{class:'why'});
+  S.why.forEach(function(w){var m=w[0]==='good'?'✓':w[0]==='bad'?'✕':'•';ul.append(el('li',null,el('span',{class:'mk m-'+w[0],text:m}),el('span',{text:w[1]})));});
+  c.append(ul);
+  if(S.wait_for&&S.wait_for.length){c.append(el('p',{class:'sub2',text:S.key==='wait'?'منتظر چه باشم؟':'مراقب چه باشم؟'}));
+    var bl=el('ul',{class:'bul'});S.wait_for.forEach(function(x){bl.append(el('li',{text:x}));});c.append(bl);}
+  c.append(el('p',{class:'note',style:'margin-top:10px',text:'ربات احساسات و روانشناسی جمع را نمی‌خواند و آینده را نمی‌داند؛ فقط می‌گوید شرایط برای کدام کار مناسب‌تر یا پرخطرتر است. تصمیم و ریسک با خودت است.'}));
+  return c;
+}
+function scenCard(S){
+  var c=el('section',{class:'card'});c.append(el('h2',{text:'سه سناریوی محتمل'}),el('p',{class:'note',text:'به‌جای یک پیش‌بینی، سه مسیر ممکن با شانس تقریبی هرکدام. درصدها حدس مدل ساده‌اند، نه احتمال علمی.'}));
+  S.scenarios.forEach(function(x){
+    var b=el('div',{class:'sc s-'+x.key},el('div',{class:'hd'},el('span',{text:x.title}),el('span',{text:'≈ '+x.prob+'٪'})),
+      el('div',{class:'bar'},el('i',{style:'width:'+x.prob+'%'})),el('p',{text:x.text}));
+    if(x.trigger)b.append(el('p',{class:'tg2',text:x.trigger}));c.append(b);});
+  return c;
+}
+function calCard(d){
+  var ev=d.calendar;if(!ev||!ev.length)return null;
+  var c=el('section',{class:'card'});c.append(el('h2',{text:'رویدادهای مهم پیش‌رو (دلار آمریکا)'}));
+  ev.slice(0,6).forEach(function(e){
+    var h=e.hours,when=h<0?'منتشر شد':h<1?'کمتر از یک ساعت دیگر':h<24?'حدود '+Math.round(h)+' ساعت دیگر':'حدود '+Math.round(h/24)+' روز دیگر';
+    var row=el('div',{class:'cd'},el('div',{class:'nm',text:e.name}),el('div',{class:'when',text:when+' · '+e.time_tehran.slice(5)+' به وقت تهران'}),
+      el('div',{text:e.explain}),el('div',{class:'note',text:e.rule}));
+    if(e.forecast||e.previous)row.append(el('div',{class:'note',text:'پیش‌بینی کارشناسان: '+(e.forecast||'—')+' · عدد قبلی: '+(e.previous||'—')}));
+    c.append(row);});
+  c.append(el('p',{class:'note',style:'margin-top:6px',text:'حدود ۳۰ دقیقه قبل و بعد از رویداد مهم وارد معامله نشو؛ قیمت ناگهانی و بی‌منطق حرکت می‌کند.'}));
+  return c;
+}
+function planCard(d){
+  var P=d.simple.plan;if(!P)return null;
+  var c=el('section',{class:'card plan'});c.append(el('h2',{text:'برنامه‌ی معامله ('+P.side+')'}),el('p',{class:P.active?'':'note',text:P.note}));
+  var eq=P.equity,rp=P.risk_pct;
+  try{var sv=JSON.parse(localStorage.getItem('gold-calc')||'{}');if(sv.eq>0)eq=sv.eq;if(sv.rp>0)rp=sv.rp;}catch(e){}
+  var iq=el('input',{type:'number',inputmode:'decimal',value:String(eq),min:'1'}),ir=el('input',{type:'number',inputmode:'decimal',step:'0.1',value:String(rp),min:'0.1',max:'5'});
+  c.append(el('div',{class:'calc'},el('label',null,'سرمایه‌ی تو (دلار)',iq),el('label',null,'ریسک هر معامله (٪ سرمایه)',ir)));
+  var out=el('div',{class:'pl'});c.append(out);var tx=el('p',{class:'note'});c.append(tx);
+  function upd(){
+    var e=parseFloat(iq.value),r=parseFloat(ir.value);if(!(e>0)||!(r>0))return;
+    try{localStorage.setItem('gold-calc',JSON.stringify({eq:e,rp:r}));}catch(x){}
+    var usd=e*r/100,lots=usd/(P.risk*100);
+    out.replaceChildren();
+    function box(k,v){out.append(el('div',null,el('small',{text:k}),el('b',{text:v})));}
+    box('قیمت ورود',fmt(P.entry));box('حد ضرر',fmt(P.sl));box('حد سود اول',fmt(P.tp1));box('حد سود دوم',fmt(P.tp2));
+    box('حجم پیشنهادی',lots.toFixed(3)+' لات');box('ضرر در حد ضرر','−'+fmt(usd,0)+'$');
+    tx.textContent='اگر قیمت به حد ضرر برسد حدود '+fmt(usd,0)+' دلار ('+r+'٪ سرمایه) از دست می‌دهی. اگر به حد سود اول برسد حدود '+fmt(usd,0)+' دلار و به دوم حدود '+fmt(usd*2,0)+' دلار سود می‌کنی. حد ضرر را همزمان با ورود بگذار و هرگز جابه‌جا نکن.';
+    if(lots<0.01)tx.textContent+=' (حجم از حداقل کارگزاری یعنی ۰٫۰۱ لات کمتر شد؛ با این سرمایه، ریسک واقعی بیشتر از چیزی می‌شود که انتخاب کرده‌ای.)';
+  }
+  iq.oninput=upd;ir.oninput=upd;upd();return c;
+}
+function candleCard(d){
+  var C=d.candles_pat;if(!C)return null;
+  var c=el('section',{class:'card'});c.append(el('h2',{text:'تحلیل کندل‌ها'}),el('p',{text:C.summary}),
+    el('p',{class:'note',text:'الگوی کندلی تنها وقتی ارزش دارد که کنار حمایت یا مقاومت و بعد از یک حرکت ظاهر شود. الگوهای «کندل جاری» تا بسته‌شدن کندل ممکن است عوض شوند.'}));
+  C.tfs.forEach(function(t){
+    c.append(el('p',{class:'tfh',text:t.label}),el('p',{class:'note',text:t.read}));
+    if(!t.patterns.length)c.append(el('p',{class:'note',text:'الگوی مهمی دیده نشد.'}));
+    t.patterns.forEach(function(p){
+      var st=p.strength>=3?'قوی':p.strength===2?'متوسط':'ضعیف';
+      c.append(el('div',{class:'pat b'+p.bias},el('b',{text:p.name+' · اهمیت '+st}),el('small',{text:p.when+(p.at_level?' · کنار سطح مهم':'')}),el('span',{text:p.meaning})));});
+  });
+  return c;
+}
+function sentCard(d){
+  var S=d.sentiment;if(!S||(!S.heat&&!S.vix&&!S.cot))return null;
+  var c=el('section',{class:'card'});c.append(el('h2',{text:'احساس بازار (نشانه‌های غیرمستقیم)'}),el('p',{class:'note',text:S.note}));
+  if(S.heat)c.append(el('div',{class:'gauge'},el('b',{text:'گرمای قیمت: '+S.heat.label}),el('p',{text:S.heat.text}),
+    el('p',{class:'note',text:'RSI '+S.heat.rsi+' · فاصله از میانگین ۵۰ روزه '+S.heat.ext_atr+' برابر نوسان معمول'})));
+  if(S.vix)c.append(el('div',{class:'gauge'},el('b',{text:'شاخص ترس (VIX): '+S.vix.value}),el('p',{text:S.vix.text})));
+  if(S.cot)c.append(el('div',{class:'gauge'},el('b',{text:'موقعیت صندوق‌های بزرگ (گزارش COT، '+S.cot.date+')'}),el('p',{text:S.cot.text}),
+    el('p',{class:'note',text:'خالص خرید: '+S.cot.net.toLocaleString('en-US')+' قرارداد · تغییر هفته: '+(S.cot.change>0?'+':'')+S.cot.change.toLocaleString('en-US')+' · جایگاه در یک سال اخیر: '+Math.round(S.cot.pct1y*100)+'٪'})));
+  return c;
+}
+function termsCard(d){
+  if(!d.simple||!d.simple.terms)return null;
+  var c=el('section',{class:'card'});var dt=el('details',null,el('summary',{text:'راهنمای واژه‌های اپ (برای مبتدی‌ها)'}));
+  d.simple.terms.forEach(function(t){dt.append(el('div',{class:'term'},el('b',{text:t.t}),el('span',{class:'ef',text:t.d})));});
+  c.append(dt);return c;
+}
+
+function btCard(host){
+  fetch('backtest.json?t='+Date.now(),{cache:'no-store'}).then(function(r){if(!r.ok)throw 0;return r.json();}).then(function(B){
+    var c=el('section',{class:'card'});c.append(el('h2',{text:'این سیگنال‌ها در گذشته چقدر درست بوده‌اند؟'}),el('p',{text:B.verdict}));
+    var a=B.adj.all;
+    if(a&&a.n){c.append(el('p',{class:'note',style:'margin-top:6px',text:'آزمایش روی '+B.points+' نقطه از '+B.start+' تا '+B.end+'. در '+a.n+' معامله‌ی شبیه‌سازی‌شده با حد ضرر و هدف ثابت: '+Math.round(a.win*100)+'٪ سودده، میانگین '+(a.exp>0?'+':'')+a.exp.toFixed(2)+' برابر ریسک در هر معامله. (R یعنی ریسک؛ عدد منفی یعنی ضرر آماری.)'}));}
+    if(B.styles&&B.styles.length){
+      var rows=B.styles.slice(0,6);var t=el('table',{class:'bt'});t.append(el('tr',null,el('th',{text:'سبک'}),el('th',{text:'درستی جهت'}),el('th',{text:'قابل‌اعتماد؟'})));
+      rows.forEach(function(x){t.append(el('tr',null,el('td',{text:x.name}),el('td',{text:Math.round(x.acc*100)+'٪ از '+x.n}),el('td',{text:x.z>=2?'احتمالاً بیش از شانس':'قابل‌تشخیص از شانس نیست'})));});
+      c.append(el('p',{class:'sub2',text:'بهترین سبک‌ها در گذشته'}),el('div',{class:'tbl'},t));
+    }
+    c.append(el('p',{class:'note',style:'margin-top:8px',text:'گذشته آینده را تضمین نمی‌کند. این آزمایش هر هفته خودکار تازه می‌شود.'}));
+    host.replaceWith(c);
+  }).catch(function(){host.remove();});
+}
+function journalCard(){
+  var c=el('section',{class:'card'});c.append(el('h2',{text:'دفتر معاملات من'}),el('p',{class:'note',text:'معامله‌هایت را اینجا ثبت کن تا ببینی واقعاً سودده‌ای یا نه. فقط روی همین گوشی ذخیره می‌شود.'}));
+  var J=[];try{J=JSON.parse(localStorage.getItem('gold-journal')||'[]');}catch(e){}
+  var sd=el('select',null,el('option',{value:'1',text:'خرید'}),el('option',{value:'-1',text:'فروش'}));
+  var ie=el('input',{type:'number',inputmode:'decimal',placeholder:'قیمت ورود'}),ix=el('input',{type:'number',inputmode:'decimal',placeholder:'قیمت خروج'}),il=el('input',{type:'number',inputmode:'decimal',step:'0.01',placeholder:'حجم (لات)',value:'0.01'});
+  var form=el('div',{class:'calc'},el('label',null,'جهت',sd),el('label',null,'حجم (لات)',il),el('label',null,'قیمت ورود',ie),el('label',null,'قیمت خروج',ix));
+  var list=el('div'),sum=el('p',{class:'note'});
+  function save(){try{localStorage.setItem('gold-journal',JSON.stringify(J));}catch(e){}}
+  function draw(){
+    list.replaceChildren();var tot=0,w=0;
+    J.slice().reverse().forEach(function(t,ri){var i=J.length-1-ri;tot+=t.pnl;if(t.pnl>0)w++;
+      list.append(el('div',{class:'jr'},el('span',{text:(t.side>0?'خرید ':'فروش ')+t.e+' ← '+t.x+' · '+t.l+' لات'}),
+        el('b',{class:t.pnl>=0?'pos':'neg',style:'direction:ltr',text:(t.pnl>=0?'+':'')+t.pnl.toFixed(0)+'$'}),
+        el('button',{'aria-label':'حذف',text:'×',onclick:function(){J.splice(i,1);save();draw();}})));});
+    sum.textContent=J.length?('جمع: '+(tot>=0?'+':'')+tot.toFixed(0)+' دلار · '+J.length+' معامله · '+Math.round(w/J.length*100)+'٪ سودده. با حداقل ۳۰ معامله می‌شود درباره‌ی روشت قضاوت کرد.'):'هنوز معامله‌ای ثبت نشده.';
+  }
+  var add=el('button',{class:'primary',text:'ثبت معامله',onclick:function(){
+    var e=parseFloat(ie.value),x=parseFloat(ix.value),l=parseFloat(il.value),s=parseInt(sd.value,10);
+    if(!(e>0)||!(x>0)||!(l>0))return;
+    J.push({side:s,e:e,x:x,l:l,pnl:(x-e)*s*l*100});save();ie.value='';ix.value='';draw();}});
+  c.append(form,add,list,sum);draw();return c;
+}
+function termRow(t,showNews){
+  return el('div',{class:'term'},el('b',{text:t.ab}),' ',el('span',{class:'fu',text:t.full}),
+    el('span',{text:t.meaning}),el('span',{class:'ef',text:'اثر روی طلا: '+t.effect}),
+    showNews&&t.in_news?el('span',{class:'note',text:'در خبر: '+t.in_news}):null);
+}
+function fundCard(f){
+  var c=el('section',{class:'card fund'});c.append(el('h2',{text:'تحلیل فاندامنتال: چه اتفاقی برای طلا در جریان است؟'}));
+  c.append(el('p',{text:f.outlook}));
+  f.themes.forEach(function(t){
+    var k=t.state>0?['t-up','به نفع طلا ▲']:t.state<0?['t-dn','علیه طلا ▼']:['t-fl','خنثی ■'];
+    var b=el('div',{class:'th '+k[0]},el('h3',null,el('span',{text:t.title}),el('span',{class:'st',text:k[1]})),
+      el('p',{class:'why',text:'چرا مهم است: '+t.why}),el('p',{class:'tx',text:t.text}));
+    if(t.example)b.append(el('p',{class:'ex',text:'نمونه خبر: '+t.example}));
+    c.append(b);
+  });
+  if(f.terms&&f.terms.length){
+    var d1=el('details',{open:''},el('summary',{text:'اصطلاحات همین خبرها'}));
+    f.terms.forEach(function(t){d1.append(termRow(t,true));});c.append(d1);
+  }
+  if(f.watch&&f.watch.length){
+    var d2=el('details',null,el('summary',{text:'رویدادهای مهم پیش‌رو و واکنش معمول طلا'}));
+    f.watch.forEach(function(w){d2.append(el('div',{class:'term'},el('b',{text:w.name}),el('span',{class:'ef',text:w.when}),el('span',{class:'ef',text:w.rule})));});
+    d2.append(el('p',{class:'note',text:'تاریخ دقیق را از تقویم اقتصادی (مثلاً investing.com یا forexfactory) ببین.'}));
+    c.append(d2);
+  }
+  if(f.glossary&&f.glossary.length){
+    var d3=el('details',null,el('summary',{text:'واژه‌نامه‌ی کامل ('+f.glossary.length+' اصطلاح)'}));
+    f.glossary.forEach(function(t){d3.append(termRow(t,false));});c.append(d3);
+  }
+  c.append(el('p',{class:'note',style:'margin-top:8px',text:'این تحلیل از روی تیتر خبرها ساخته می‌شود. توضیح‌ها قاعده‌ی کلی‌اند و واکنش واقعی بازار، به‌خصوص دقایق اول بعد از خبر، ممکن است برعکس باشد.'}));
+  return c;
+}
+function chart(host,cd,r){
+  host.replaceChildren();
+  var W=Math.max(280,host.clientWidth||340),H=280,pR=52,pB=22,pT=8,cw=W-pR,N=cd.length;
+  var vals=[];cd.forEach(function(c){vals.push(c.h,c.l);});if(r.sup)vals.push(r.sup);if(r.res)vals.push(r.res);
+  var lo=Math.min.apply(null,vals),hi=Math.max.apply(null,vals),pad=(hi-lo)*.05;lo-=pad;hi+=pad;
+  var y=function(p){return pT+(hi-p)/(hi-lo)*(H-pT-pB)},x=function(i){return (i+.5)/N*cw};
+  var NS='http://www.w3.org/2000/svg',S=function(t,a){var e=document.createElementNS(NS,t);for(var k in a)e.setAttribute(k,a[k]);return e;};
+  var svg=S('svg',{viewBox:'0 0 '+W+' '+H,role:'img','aria-label':'نمودار شمعی روزانه‌ی طلا'});
+  for(var k=0;k<=4;k++){var p=lo+(hi-lo)*k/4,yy=y(p);svg.append(S('line',{x1:0,x2:cw,y1:yy,y2:yy,'class':'grid'}));var tx=S('text',{x:cw+4,y:yy+4});tx.textContent=Math.round(p).toLocaleString('en-US');svg.append(tx);}
+  var bw=Math.max(1.5,cw/N*.62);
+  cd.forEach(function(c,i){var cl=c.c>=c.o?'up':'dn';
+    svg.append(S('line',{x1:x(i),x2:x(i),y1:y(c.h),y2:y(c.l),'class':cl,'stroke-width':1}));
+    svg.append(S('rect',{x:x(i)-bw/2,y:y(Math.max(c.o,c.c)),width:bw,height:Math.max(1,Math.abs(y(c.o)-y(c.c))),'class':cl}));});
+  function line(key,cls){var d='';cd.forEach(function(c,i){if(c[key]==null)return;d+=(d?'L':'M')+x(i).toFixed(1)+' '+y(c[key]).toFixed(1);});if(d)svg.append(S('path',{d:d,'class':cls}));}
+  line('s50','m50');line('s200','m200');
+  function lv(p,col){if(!p)return;svg.append(S('line',{x1:0,x2:cw,y1:y(p),y2:y(p),stroke:col,'stroke-width':1,'stroke-dasharray':'4 4'}));}
+  lv(r.sup,'var(--good)');lv(r.res,'var(--bad)');
+  [0,.5,1].forEach(function(f){var i=Math.round((N-1)*f),tx=S('text',{x:Math.min(cw-30,Math.max(2,x(i)-28)),y:H-6});tx.textContent=cd[i].t;svg.append(tx);});
+  host.append(svg);
+}
+
+$('reload').onclick=load;
+document.addEventListener('visibilitychange',function(){if(!document.hidden&&state.data&&(Date.now()-new Date(state.data.updated).getTime())>10*60000)load();});
+var rz;window.addEventListener('resize',function(){clearTimeout(rz);rz=setTimeout(function(){if(state.data)render();},200);});
+if('serviceWorker' in navigator)window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){});});
+load();
+})();
+</script>
+</body>
+</html>
