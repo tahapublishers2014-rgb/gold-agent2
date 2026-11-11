@@ -81,6 +81,17 @@ button[aria-pressed=true]{background:var(--gold-soft);border-color:var(--gold);f
 .actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:flex-end}
 .linkish{font-size:12.5px;color:var(--info);text-decoration:none;border-bottom:1px dashed var(--info)}
 .age-live{font-variant-numeric:tabular-nums}
+.cb-row{display:flex;justify-content:space-between;gap:8px;align-items:center;border-bottom:1px dashed var(--line);padding-block:8px;font-size:14px}
+.cb-row:last-child{border-bottom:0}
+.cb-side{font-weight:800;min-width:4.5rem;text-align:center}
+.cal-item{border-bottom:1px dashed var(--line);padding-block:8px;font-size:14px}
+.cal-item:last-child{border-bottom:0}
+.cal-item .ttl{font-weight:700}
+.levels{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:6px;margin-top:10px}
+.levels div{border:1px solid var(--line);border-radius:8px;padding:6px 10px}
+.levels small{display:block;color:var(--muted);font-size:12px}
+.levels b{direction:ltr;font-variant-numeric:tabular-nums}
+
 </style>
 </head>
 <body>
@@ -249,31 +260,77 @@ function render(){
     }));
   }
 
-  // ── simple verdict
-  if(d.simple){
-    var S = d.simple;
-    var vc = el('section', { class: 'card verdict v-' + (S.key || 'wait'), 'aria-live': 'polite' });
+  // ── decision card (buy/sell/wait)
+  var D = d.decision || null;
+  if(D){
+    var vkey = D.side === 'buy' ? 'buy' : D.side === 'sell' ? 'sell' : 'wait';
+    var vc = el('section', { class: 'card verdict v-' + vkey, 'aria-live': 'polite' });
     vc.append(
       el('p', { class: 'kick', text: 'الان چه کار کنم؟' }),
-      el('div', { class: 'vt', text: S.title || d.label || '—' }),
-      el('p', { text: S.head || '' })
+      el('div', { class: 'vt', text: D.title || 'صبر' }),
+      el('p', { text: D.head || '' })
     );
-    if(S.confidence) vc.append(el('p', { class: 'note', text: 'سطح اطمینان نشانه‌ها: ' + S.confidence }));
-    if(S.why && S.why.length){
+    if(D.strength && D.strength !== '—')
+      vc.append(el('p', { class: 'note', text: 'قدرت سیگنال: ' + D.strength }));
+    if(D.reasons && D.reasons.length){
       vc.append(el('p', { class: 'note', style: 'margin-top:10px;font-weight:700', text: 'چرا؟' }));
       var ul = el('ul', { class: 'why' });
-      S.why.forEach(function(w){
-        var mk = w[0] === 'good' ? '✓' : w[0] === 'bad' ? '✕' : '•';
-        ul.append(el('li', null, el('span', { class: 'mk m-' + w[0], text: mk }), el('span', { text: w[1] })));
+      D.reasons.forEach(function(r){
+        var bad = String(r).indexOf('⚠') === 0 || String(r).indexOf('نزدیک') >= 0;
+        var good = /صعودی|حمایتی/.test(r);
+        var cls = bad ? 'bad' : good ? 'good' : 'info';
+        var mk = bad ? '✕' : good ? '✓' : '•';
+        ul.append(el('li', null, el('span', { class: 'mk m-' + cls, text: mk }), el('span', { text: String(r).replace(/^⚠\s*/, '') })));
       });
       vc.append(ul);
     }
-    vc.append(el('p', {
-      class: 'note', style: 'margin-top:10px',
-      text: 'ربات آینده را نمی‌داند؛ فقط می‌گوید شرایط برای کدام سمت مناسب‌تر یا پرخطرتر به نظر می‌رسد. تصمیم و ریسک با خودت است.'
-    }));
+    if(D.side === 'buy' || D.side === 'sell'){
+      var lv = el('div', { class: 'levels' });
+      function L(k,v){ if(v==null) return; lv.append(el('div', null, el('small', { text: k }), el('b', { text: fmt(v, 2) }))); }
+      L('ورود', D.entry); L('حد ضرر', D.sl); L('هدف ۱', D.tp1); L('هدف ۲', D.tp2);
+      vc.append(lv);
+      if(D.invalidation) vc.append(el('p', { class: 'note', style: 'margin-top:8px', text: 'باطل شدن: ' + D.invalidation }));
+    }
+    vc.append(el('p', { class: 'note', style: 'margin-top:10px', text: D.note || 'تصمیم قاعده‌محور است؛ تضمین سود نیست.' }));
     main.append(vc);
+  } else if(d.simple){
+    var S = d.simple;
+    var vc2 = el('section', { class: 'card verdict v-' + (S.key || 'wait'), 'aria-live': 'polite' });
+    vc2.append(el('p', { class: 'kick', text: 'الان چه کار کنم؟' }), el('div', { class: 'vt', text: S.title || '—' }), el('p', { text: S.head || '' }));
+    main.append(vc2);
   }
+
+  // ── candle bias multi-TF
+  if(d.candle_bias && d.candle_bias.length){
+    var cb = el('section', { class: 'card' });
+    cb.append(el('h2', { text: 'تمایل جهت کندل (چند تایم‌فریم)' }));
+    cb.append(el('p', { class: 'note', text: 'این «پیش‌بینی قطعی» نیست؛ فقط تمایل بر اساس SMA، RSI و الگوی کندل آخر است.' }));
+    d.candle_bias.forEach(function(b){
+      var cls = b.side === 'up' ? 'pos' : b.side === 'down' ? 'neg' : 'neu';
+      cb.append(el('div', { class: 'cb-row' },
+        el('span', null, el('b', { text: b.label || b.tf }), el('span', { class: 'note', text: ' · اطمینان ' + (b.conf || '—') })),
+        el('span', { class: 'cb-side ' + cls, text: b.side_fa || b.side })
+      ));
+      cb.append(el('p', { class: 'note', style: 'margin-top:-4px;margin-bottom:6px', text: b.why || '' }));
+    });
+    main.append(cb);
+  }
+
+  // ── calendar
+  if(d.calendar && d.calendar.length){
+    var cal = el('section', { class: 'card' });
+    cal.append(el('h2', { text: 'تقویم خبری مهم (طلا)' }));
+    cal.append(el('p', { class: 'note', text: 'زمان دقیق را از تقویم فارکس (مثل ForexFactory) چک کن. نزدیک خبر معمولاً صبر منطقی‌تر است.' }));
+    d.calendar.forEach(function(ev){
+      var box = el('div', { class: 'cal-item' });
+      box.append(el('div', { class: 'ttl', text: ev.title }));
+      box.append(el('div', { class: 'note', text: (ev.when_fa || '') + (ev.impact === 'high' ? ' · اثر بالا' : '') }));
+      if(ev.gold_note) box.append(el('div', { class: 'note', text: ev.gold_note }));
+      cal.append(box);
+    });
+    main.append(cal);
+  }
+
 
   // ── scores hero
   var lb = d.label || '—';
