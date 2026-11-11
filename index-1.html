@@ -1,0 +1,570 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0e1217">
+<meta name="description" content="ایجنت طلا — تحلیل ساده و شفاف قرارداد آتی GC=F">
+<title>ایجنت طلا</title>
+<style>
+:root{
+  --bg:#f1f3f5; --surface:#fff; --fg:#14181f; --muted:#5d6673; --line:#dde1e6;
+  --gold:#8f6c0e; --gold-soft:#f3e8c6; --good:#1f7a52; --bad:#b83a3a; --warn:#9a6200; --info:#2a6f97;
+  --font:system-ui,"Segoe UI",Tahoma,"Noto Sans Arabic","Noto Naskh Arabic",sans-serif;
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#0e1217; --surface:#161c24; --fg:#e8ebef; --muted:#97a1ae; --line:#27303b;
+  --gold:#e0b84f; --gold-soft:#2c2614; --good:#4cc38a; --bad:#f06b66; --warn:#e8b04a; --info:#6fb3e0;
+  color-scheme:dark}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.85 var(--font);
+  padding-block:calc(14px + env(safe-area-inset-top,0px)) calc(36px + env(safe-area-inset-bottom,0px));
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+#app{max-width:720px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+h1{margin:0;font-size:24px;line-height:1.3;color:var(--gold)}
+h2{font-size:15.5px;margin:0 0 10px}
+p{margin:0}
+.sub,.note{color:var(--muted);font-size:13.5px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px;min-width:0}
+.top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap}
+.pill{display:inline-block;border-radius:999px;padding:2px 10px;font-size:12.5px;border:1px solid var(--line);color:var(--muted)}
+.pill.ok{color:var(--good);border-color:var(--good)}
+.pill.stale{color:var(--warn);border-color:var(--warn)}
+.pill.demo{color:var(--bad);border-color:var(--bad)}
+.pill.err{color:var(--bad);border-color:var(--bad)}
+button{font:inherit;color:inherit;background:var(--surface);border:1px solid var(--line);border-radius:9px;padding:6px 14px;min-height:40px;cursor:pointer}
+button:disabled{opacity:.6;cursor:wait}
+button.primary{background:var(--gold);border-color:var(--gold);color:var(--bg);font-weight:700}
+a{color:var(--info)}
+.banner{border-color:var(--gold);background:var(--gold-soft)}
+.errbox{border-color:var(--warn);color:var(--warn);font-size:13.5px}
+.bias{font-size:26px;font-weight:800;line-height:1.35}
+.pos{color:var(--good)} .neg{color:var(--bad)} .neu{color:var(--warn)}
+.meter{direction:ltr;position:relative;height:12px;border-radius:6px;margin:14px 0 4px;display:flex;overflow:hidden;border:1px solid var(--line)}
+.meter i{flex:1}
+.meter .a{background:color-mix(in srgb,var(--bad) 35%,var(--surface))}
+.meter .b{background:color-mix(in srgb,var(--warn) 25%,var(--surface))}
+.meter .c{background:color-mix(in srgb,var(--good) 35%,var(--surface))}
+.meter b{position:absolute;top:-3px;bottom:-3px;width:4px;margin-left:-2px;background:var(--fg);border-radius:2px}
+.ends{direction:ltr;display:flex;justify-content:space-between;font-size:12px;color:var(--muted)}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:4px 14px;margin-top:12px;font-size:14px}
+.facts div{display:flex;justify-content:space-between;gap:8px;border-bottom:1px dashed var(--line);padding-block:3px}
+.facts span:first-child{color:var(--muted)}
+.facts b{direction:ltr;font-variant-numeric:tabular-nums}
+.verdict{border-width:2px}
+.v-wait{--c:var(--warn);border-color:var(--c);background:color-mix(in srgb,var(--c) 7%,var(--surface))}
+.v-buy{--c:var(--good);border-color:var(--c);background:color-mix(in srgb,var(--c) 7%,var(--surface))}
+.v-sell{--c:var(--bad);border-color:var(--c);background:color-mix(in srgb,var(--c) 7%,var(--surface))}
+.vt{font-size:24px;font-weight:800;line-height:1.35;color:var(--c);margin:2px 0 6px}
+.kick{font-size:12.5px;color:var(--muted)}
+.why{list-style:none;margin:8px 0 0;padding:0;display:flex;flex-direction:column;gap:5px}
+.why li{display:flex;gap:8px;font-size:14.5px}
+.why .mk{flex:none;width:18px;text-align:center;font-weight:800}
+.m-good{color:var(--good)}.m-bad{color:var(--bad)}.m-info{color:var(--muted)}
+.news{display:flex;gap:8px;border-bottom:1px dashed var(--line);padding-block:6px;font-size:14px}
+.news .ar{flex:none;font-weight:800;width:16px;text-align:center}
+.news .bd{min-width:0;overflow-wrap:anywhere}
+.news .mt{display:block;color:var(--muted);font-size:12.5px}
+.chart{direction:ltr;overflow:hidden}
+.chart svg{display:block;width:100%}
+.chart text{fill:var(--muted);font:11px var(--font)}
+.chart .grid{stroke:var(--line)}
+.chart .up{stroke:var(--good);fill:var(--good)}
+.chart .dn{stroke:var(--bad);fill:var(--bad)}
+.chart .m50{stroke:var(--gold);fill:none;stroke-width:1.4}
+.chart .m200{stroke:var(--info);fill:none;stroke-width:1.4}
+.legend{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12.5px;color:var(--muted);margin-top:6px}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+button[aria-pressed=true]{background:var(--gold-soft);border-color:var(--gold);font-weight:700}
+.foot{font-size:12.5px;color:var(--muted);text-align:center;line-height:1.6}
+.actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:flex-end}
+.linkish{font-size:12.5px;color:var(--info);text-decoration:none;border-bottom:1px dashed var(--info)}
+.age-live{font-variant-numeric:tabular-nums}
+.cb-row{display:flex;justify-content:space-between;gap:8px;align-items:center;border-bottom:1px dashed var(--line);padding-block:8px;font-size:14px}
+.cb-row:last-child{border-bottom:0}
+.cb-side{font-weight:800;min-width:4.5rem;text-align:center}
+.cal-item{border-bottom:1px dashed var(--line);padding-block:8px;font-size:14px}
+.cal-item:last-child{border-bottom:0}
+.cal-item .ttl{font-weight:700}
+.levels{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:6px;margin-top:10px}
+.levels div{border:1px solid var(--line);border-radius:8px;padding:6px 10px}
+.levels small{display:block;color:var(--muted);font-size:12px}
+.levels b{direction:ltr;font-variant-numeric:tabular-nums}
+.session-pill{font-size:12.5px}
+.hist-row{display:flex;justify-content:space-between;gap:8px;border-bottom:1px dashed var(--line);padding-block:7px;font-size:13.5px}
+.hist-row:last-child{border-bottom:0}
+.lock-banner{border-color:var(--warn)!important;background:color-mix(in srgb,var(--warn) 12%,var(--surface))}
+
+
+</style>
+</head>
+<body>
+<div id="app">
+  <header class="top">
+    <div>
+      <h1>ایجنت طلا</h1>
+      <p class="sub">قرارداد آتی GC=F · دادهٔ عمومی/تأخیری · تحلیل ساده و شفاف</p>
+    </div>
+    <div class="actions">
+      <span id="pill" class="pill">در حال بارگذاری...</span>
+      <button id="reload" type="button" title="فقط JSON منتشرشده را دوباره می‌خواند">تازه‌سازی صفحه</button>
+      <a id="force-link" class="linkish" href="#" target="_blank" rel="noopener">اجرای دستی Actions ↗</a>
+    </div>
+  </header>
+  <div id="msg"></div>
+  <main id="main" style="display:flex;flex-direction:column;gap:14px"></main>
+  <p class="foot">
+    این برنامه احتمال و سناریو نشان می‌دهد، نه پیش‌بینی قطعی و نه مشاوره‌ی مالی.<br>
+    داده از Yahoo Finance است و ممکن است تأخیری باشد. حد ضرر و مدیریت سرمایه با خودت است.
+  </p>
+</div>
+<script>
+(function(){
+'use strict';
+var $ = function(i){ return document.getElementById(i); };
+function el(t, p){
+  var e = document.createElement(t); p = p || {};
+  for(var k in p){
+    if(k === 'class') e.className = p[k];
+    else if(k === 'text') e.textContent = p[k];
+    else if(k.slice(0,2) === 'on') e[k] = p[k];
+    else e.setAttribute(k, p[k]);
+  }
+  for(var i = 2; i < arguments.length; i++){
+    var c = arguments[i];
+    if(c == null) continue;
+    if(Array.isArray(c)) c.forEach(function(x){ if(x != null) e.append(x.nodeType ? x : document.createTextNode(x)); });
+    else e.append(c.nodeType ? c : document.createTextNode(c));
+  }
+  return e;
+}
+var fmt = function(x, d){
+  if(x == null || x === '') return '—';
+  return Number(x).toLocaleString('en-US', {
+    minimumFractionDigits: d == null ? 1 : d,
+    maximumFractionDigits: d == null ? 1 : d
+  });
+};
+var sg = function(x){ return (x > 0 ? '+' : '') + x; };
+var state = { data: null, view: 0 };
+// آدرس workflow را با ریپوی خودت عوض کن (یا خالی بگذار تا لینک مخفی شود)
+var ACTIONS_URL = 'https://github.com/tahapublishers2014-rgb/gold-agent2/actions/workflows/update.yml';
+(function(){
+  var a = document.getElementById('force-link');
+  if(!a) return;
+  if(ACTIONS_URL && ACTIONS_URL.indexOf('YOUR_') === -1){
+    a.href = ACTIONS_URL;
+  } else {
+    a.style.display = 'none';
+  }
+})();
+
+function ageInfo(iso){
+  if(!iso) return { min: Infinity, text: 'نامشخص', cls: 'stale' };
+  var ms = Date.now() - new Date(iso).getTime();
+  var min = ms / 60000;
+  if(!isFinite(min) || min < 0) return { min: Infinity, text: 'نامشخص', cls: 'stale' };
+  var t = new Date(iso).toLocaleString('fa-IR', {
+    timeZone: 'Asia/Tehran', hour: '2-digit', minute: '2-digit', month: 'short', day: 'numeric'
+  });
+  if(min < 1) return { min: min, text: 'همین الان · ' + t, cls: 'ok' };
+  if(min < 40) return { min: min, text: Math.round(min) + ' دقیقه پیش · ' + t, cls: 'ok' };
+  if(min < 180) return { min: min, text: Math.round(min) + ' دقیقه پیش · ' + t, cls: 'stale' };
+  return { min: min, text: Math.round(min / 60) + ' ساعت پیش · ' + t, cls: 'stale' };
+}
+
+function ageTextHours(h){
+  if(h == null) return '';
+  if(h < 1) return 'کمتر از یک ساعت پیش';
+  if(h < 48) return Math.round(h) + ' ساعت پیش';
+  return Math.round(h / 24) + ' روز پیش';
+}
+
+function load(opts){
+  opts = opts || {};
+  var btn = $('reload');
+  if(btn){ btn.disabled = true; btn.textContent = 'در حال خواندن...'; }
+  $('pill').textContent = 'در حال بارگذاری...';
+  $('pill').className = 'pill';
+
+  // Strong cache-bust for GitHub Pages + any intermediary cache
+  var url = 'data.json?t=' + Date.now() + '&r=' + Math.random().toString(36).slice(2, 9);
+  return fetch(url, {
+    cache: 'no-store',
+    headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' }
+  })
+  .then(function(r){
+    if(!r.ok) throw new Error('HTTP ' + r.status);
+    return r.json();
+  })
+  .then(function(d){
+    state.data = d;
+    render();
+    if(opts.fromButton){
+      var age = ageInfo(d.updated);
+      var note = age.min > 40
+        ? 'JSON دوباره خوانده شد، ولی هنوز قدیمی است. برای ساخت دادهٔ تازه از لینک «اجرای دستی Actions» استفاده کن (حدود ۱–۳ دقیقه)، بعد دوباره تازه‌سازی صفحه را بزن.'
+        : 'دادهٔ منتشرشده دوباره بارگذاری شد.';
+      var m = $('msg');
+      if(m) m.prepend(el('div', { class: 'card banner', text: note }));
+    }
+  })
+  .catch(function(e){
+    $('pill').textContent = 'بدون داده';
+    $('pill').className = 'pill stale';
+    $('msg').replaceChildren(el('div', {
+      class: 'card errbox',
+      text: 'داده‌ای بارگذاری نشد. اگر تازه نصب کرده‌ای، اولین به‌روزرسانی خودکار تا چند دقیقهٔ دیگر انجام می‌شود. (' + e.message + ')'
+    }));
+  })
+  .finally(function(){
+    if(btn){ btn.disabled = false; btn.textContent = 'تازه‌سازی صفحه'; }
+  });
+}
+
+function updatePill(){
+  var d = state.data, pill = $('pill');
+  if(!d || !pill) return;
+  if(d.demo){
+    pill.textContent = 'نمونه (ساختگی)';
+    pill.className = 'pill demo';
+    return;
+  }
+  if(d.status === 'error' && d.error){
+    pill.textContent = 'خطا در آخرین اجرا';
+    pill.className = 'pill err';
+    return;
+  }
+  var age = ageInfo(d.updated);
+  pill.textContent = (age.cls === 'ok' ? 'به‌روز · ' : 'قدیمی · ') + age.text;
+  pill.className = 'pill ' + age.cls + ' age-live';
+}
+
+function render(){
+  var d = state.data, main = $('main'), msg = $('msg');
+  main.replaceChildren();
+  msg.replaceChildren();
+  updatePill();
+
+  var age = ageInfo(d.updated);
+
+  if(d.demo){
+    msg.append(el('div', { class: 'card banner', text: 'این داده‌ی ساختگی است و فقط برای نمایش رابط به‌کار رفته.' }));
+  }
+  if(d.error){
+    msg.append(el('div', {
+      class: 'card errbox',
+      text: 'آخرین اجرای اسکریپت خطا داشت' + (d.error_at ? ' (' + d.error_at + ')' : '') + ': ' + d.error + ' — دادهٔ قبلی نمایش داده می‌شود.'
+    }));
+  }
+  if(!d.demo && age.min > 40){
+    msg.append(el('div', {
+      class: 'card errbox',
+      text: 'داده بیش از ۴۰ دقیقه به‌روزرسانی نشده. دکمهٔ «تازه‌سازی صفحه» فقط JSON منتشرشده را می‌خواند. برای ساخت دادهٔ جدید از Actions استفاده کن یا منتظر اجرای خودکار (~۳۰ دقیقه) بمان.'
+    }));
+  }
+
+  // ── decision card (buy/sell/wait)
+  var D = d.decision || null;
+  if(D){
+    var vkey = D.side === 'buy' ? 'buy' : D.side === 'sell' ? 'sell' : 'wait';
+    var vc = el('section', { class: 'card verdict v-' + vkey, 'aria-live': 'polite' });
+    vc.append(
+      el('p', { class: 'kick', text: 'الان چه کار کنم؟' }),
+      el('div', { class: 'vt', text: D.title || 'صبر' }),
+      el('p', { text: D.head || '' })
+    );
+    if(D.strength && D.strength !== '—')
+      vc.append(el('p', { class: 'note', text: 'قدرت سیگنال: ' + D.strength }));
+    if(D.reasons && D.reasons.length){
+      vc.append(el('p', { class: 'note', style: 'margin-top:10px;font-weight:700', text: 'چرا؟' }));
+      var ul = el('ul', { class: 'why' });
+      D.reasons.forEach(function(r){
+        var bad = String(r).indexOf('⚠') === 0 || String(r).indexOf('نزدیک') >= 0;
+        var good = /صعودی|حمایتی/.test(r);
+        var cls = bad ? 'bad' : good ? 'good' : 'info';
+        var mk = bad ? '✕' : good ? '✓' : '•';
+        ul.append(el('li', null, el('span', { class: 'mk m-' + cls, text: mk }), el('span', { text: String(r).replace(/^⚠\s*/, '') })));
+      });
+      vc.append(ul);
+    }
+    if(D.locked){ vc.className += ' lock-banner'; }
+    if(D.session){
+      vc.append(el('p', { class: 'note session-pill', text: 'سشن فعلی: ' + D.session + (d.session && d.session.note ? ' — ' + d.session.note : '') }));
+    }
+    if(D.side === 'buy' || D.side === 'sell'){
+      var lv = el('div', { class: 'levels' });
+      function L(k,v){ if(v==null) return; lv.append(el('div', null, el('small', { text: k }), el('b', { text: fmt(v, 2) }))); }
+      L('ورود', D.entry); L('حد ضرر', D.sl); L('هدف ۱', D.tp1); L('هدف ۲', D.tp2);
+      if(D.rr) L('ریسک به ریوارد', D.rr);
+      vc.append(lv);
+      if(D.invalidation) vc.append(el('p', { class: 'note', style: 'margin-top:8px', text: 'باطل شدن: ' + D.invalidation }));
+    }
+    vc.append(el('p', { class: 'note', style: 'margin-top:10px', text: D.note || 'تصمیم قاعده‌محور است؛ تضمین سود نیست.' }));
+    main.append(vc);
+  } else if(d.simple){
+    var S = d.simple;
+    var vc2 = el('section', { class: 'card verdict v-' + (S.key || 'wait'), 'aria-live': 'polite' });
+    vc2.append(el('p', { class: 'kick', text: 'الان چه کار کنم؟' }), el('div', { class: 'vt', text: S.title || '—' }), el('p', { text: S.head || '' }));
+    main.append(vc2);
+  }
+
+  // ── candle bias multi-TF
+  if(d.candle_bias && d.candle_bias.length){
+    var cb = el('section', { class: 'card' });
+    cb.append(el('h2', { text: 'تمایل جهت کندل (چند تایم‌فریم)' }));
+    cb.append(el('p', { class: 'note', text: 'این «پیش‌بینی قطعی» نیست؛ فقط تمایل بر اساس SMA، RSI و الگوی کندل آخر است.' }));
+    d.candle_bias.forEach(function(b){
+      var cls = b.side === 'up' ? 'pos' : b.side === 'down' ? 'neg' : 'neu';
+      cb.append(el('div', { class: 'cb-row' },
+        el('span', null, el('b', { text: b.label || b.tf }), el('span', { class: 'note', text: ' · اطمینان ' + (b.conf || '—') })),
+        el('span', { class: 'cb-side ' + cls, text: b.side_fa || b.side })
+      ));
+      cb.append(el('p', { class: 'note', style: 'margin-top:-4px;margin-bottom:6px', text: b.why || '' }));
+    });
+    main.append(cb);
+  }
+
+  // ── calendar
+  if(d.calendar && d.calendar.length){
+    var cal = el('section', { class: 'card' });
+    cal.append(el('h2', { text: 'تقویم خبری مهم (طلا)' }));
+    cal.append(el('p', { class: 'note', text: 'زمان دقیق را از تقویم فارکس (مثل ForexFactory) چک کن. نزدیک خبر معمولاً صبر منطقی‌تر است.' }));
+    d.calendar.forEach(function(ev){
+      var box = el('div', { class: 'cal-item' });
+      var st = ev.status === 'imminent' ? ' · نزدیک/قفل' : ev.status === 'today' ? ' · امروز' : '';
+      var lock = ev.lock ? ' 🔒' : '';
+      box.append(el('div', { class: 'ttl', text: (ev.title || '') + lock }));
+      box.append(el('div', { class: 'note', text: (ev.when_fa || '') + (ev.impact === 'high' ? ' · اثر بالا' : '') + st }));
+      if(ev.gold_note) box.append(el('div', { class: 'note', text: ev.gold_note }));
+      cal.append(box);
+    });
+    main.append(cal);
+  }
+
+  // ── session strip (if not already on decision)
+  if(d.session && !(d.decision && d.decision.session)){
+    var ss = el('section', { class: 'card' });
+    ss.append(el('h2', { text: 'سشن بازار' }));
+    ss.append(el('p', { text: d.session.label_fa + (d.session.trade_friendly ? ' · مناسب‌تر برای معامله' : ' · نقدشوندگی کمتر') }));
+    if(d.session.note) ss.append(el('p', { class: 'note', text: d.session.note }));
+    main.append(ss);
+  }
+
+  // ── signal history
+  if(d.signal_history && d.signal_history.length){
+    var hs = el('section', { class: 'card' });
+    hs.append(el('h2', { text: '۵ سیگنال اخیر' }));
+    hs.append(el('p', { class: 'note', text: 'فقط برای مرور تغییر تصمیم‌هاست؛ نتیجه سود/زیان قطعی نیست.' }));
+    d.signal_history.slice().reverse().forEach(function(h){
+      var sideFa = h.side === 'buy' ? 'بای' : h.side === 'sell' ? 'سل' : 'صبر';
+      var cls = h.side === 'buy' ? 'pos' : h.side === 'sell' ? 'neg' : 'neu';
+      var when = '';
+      try {
+        when = new Date(h.at).toLocaleString('fa-IR', { timeZone: 'Asia/Tehran', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+      } catch(e){ when = h.at || ''; }
+      var row = el('div', { class: 'hist-row' });
+      row.append(el('span', null,
+        el('b', { class: cls, text: sideFa }),
+        document.createTextNode(' · ' + (h.strength && h.strength !== '—' ? h.strength + ' · ' : '') + when)
+      ));
+      row.append(el('span', { style: 'direction:ltr', text: h.price != null ? fmt(h.price, 1) : '—' }));
+      hs.append(row);
+    });
+    main.append(hs);
+  }
+
+
+  // ── scores hero
+  var lb = d.label || '—';
+  var lc = d.label_cls || 'neu';
+  var hero = el('section', { class: 'card' });
+  hero.append(
+    el('h2', { text: 'امتیاز و اعداد کلیدی' }),
+    el('p', { class: 'note', text: 'امتیاز از ۱۰۰− تا ۱۰۰+ است. صفر یعنی بی‌طرف. این‌ها میانگین ساده‌اند، نه سیگنال قطعی.' }),
+    el('div', { style: 'display:flex;flex-wrap:wrap;gap:8px 16px;align-items:baseline;justify-content:space-between' },
+      el('span', { class: 'bias ' + lc, text: lb }),
+      el('span', { class: 'sub', text: 'امتیاز ' + sg(d.overall || 0) + ' از ۱۰۰' })
+    )
+  );
+  var m = el('div', { class: 'meter', role: 'img', 'aria-label': 'امتیاز ' + (d.overall || 0) },
+    el('i', { class: 'a' }), el('i', { class: 'b' }), el('i', { class: 'c' })
+  );
+  var mk = el('b');
+  mk.style.left = (((d.overall || 0) + 100) / 2) + '%';
+  m.append(mk);
+  hero.append(m, el('div', { class: 'ends' }, el('span', { text: 'نزولی' }), el('span', { text: 'صعودی' })));
+
+  var f = el('div', { class: 'facts' });
+  function row(k, v){ f.append(el('div', null, el('span', { text: k }), el('b', { text: v }))); }
+  row('تکنیکال', sg(d.tech || 0));
+  row('اخبار', d.news ? sg(d.news.bias) : '—');
+  var dr = (d.reps || []).filter(function(x){ return x.tf === '1d'; })[0] || (d.reps || [])[0] || {};
+  row('قیمت (روزانه)', fmt(dr.price, 2));
+  if(dr.sup) row('حمایت نزدیک', fmt(dr.sup));
+  if(dr.res) row('مقاومت نزدیک', fmt(dr.res));
+  if(dr.atr) row('نوسان معمول (ATR)', fmt(dr.atr));
+  if(dr.rsi != null) row('RSI روزانه', fmt(dr.rsi, 1));
+  if(dr.sma50) row('SMA ۵۰', fmt(dr.sma50));
+  if(dr.sma200) row('SMA ۲۰۰', fmt(dr.sma200));
+  hero.append(f);
+
+  if(d.market_data){
+    var md = d.market_data;
+    hero.append(el('p', {
+      class: 'note', style: 'margin-top:10px',
+      text: (md.instrument || '') +
+        (md.last_bar_at ? ' · زمان خام آخرین کندل: ' + md.last_bar_at : '') +
+        (md.bar_timezone ? ' (' + md.bar_timezone + ')' : '') +
+        ' · ' + (md.delay_note || '')
+    }));
+    hero.append(el('p', {
+      class: 'note',
+      text: 'زمان اجرای اسکریپت (updated): ' + (d.updated || '—') +
+        ' · زمان بازیابی: ' + (md.retrieved_at || '—')
+    }));
+  }
+  main.append(hero);
+
+  // ── timeframe tabs
+  if(d.reps && d.reps.length){
+    var tc = el('section', { class: 'card' });
+    tc.append(el('h2', { text: 'بازه‌های زمانی' }));
+    var tabs = el('div', { class: 'tabs' });
+    d.reps.forEach(function(x, i){
+      tabs.append(el('button', {
+        'aria-pressed': String(i === state.view),
+        onclick: function(){ state.view = i; render(); }
+      }, x.label || x.tf));
+    });
+    tc.append(tabs);
+    var r = d.reps[state.view] || d.reps[0];
+    var tfFacts = el('div', { class: 'facts' });
+    function tr(k, v){ tfFacts.append(el('div', null, el('span', { text: k }), el('b', { text: v }))); }
+    tr('قیمت', fmt(r.price, 2));
+    tr('امتیاز', sg(r.score));
+    if(r.rsi != null) tr('RSI', fmt(r.rsi, 1));
+    if(r.atr) tr('ATR', fmt(r.atr));
+    if(r.sup) tr('حمایت', fmt(r.sup));
+    if(r.res) tr('مقاومت', fmt(r.res));
+    if(r.sma50) tr('SMA50', fmt(r.sma50));
+    if(r.sma200) tr('SMA200', fmt(r.sma200));
+    tc.append(tfFacts);
+    main.append(tc);
+  }
+
+  // ── chart
+  if(d.candles && d.candles.length){
+    var cc = el('section', { class: 'card' });
+    cc.append(el('h2', { text: 'نمودار روزانه' }));
+    var host = el('div', { class: 'chart' });
+    cc.append(host, el('div', { class: 'legend' },
+      el('span', { style: 'color:var(--gold)', text: '— میانگین ۵۰' }),
+      el('span', { style: 'color:var(--info)', text: '— میانگین ۲۰۰' }),
+      el('span', { text: 'خط‌چین سبز: حمایت · قرمز: مقاومت' })
+    ));
+    main.append(cc);
+    requestAnimationFrame(function(){ drawChart(host, d.candles, dr); });
+  }
+
+  // ── news
+  if(d.news && d.news.top && d.news.top.length){
+    var n = d.news;
+    var nc = el('section', { class: 'card' });
+    nc.append(el('h2', { text: 'اخبار (تیتر)' }));
+    nc.append(el('p', null,
+      'جهت‌گیری تقریبی: ', el('b', { text: sg(n.bias) }),
+      ' · اطمینان: ' + (n.conf || '—') +
+      (n.n ? ' · از حدود ' + n.n + ' خبر' : '')
+    ));
+    if(n.note) nc.append(el('p', { class: 'note', text: n.note }));
+    var list = el('div');
+    n.top.forEach(function(x){
+      var ar = x.score > 0 ? ['▲', 'pos'] : x.score < 0 ? ['▼', 'neg'] : ['■', 'neu'];
+      var titleNode = x.link
+        ? el('a', { href: x.link, target: '_blank', rel: 'noopener', text: x.title })
+        : document.createTextNode(x.title);
+      list.append(el('div', { class: 'news' },
+        el('span', { class: 'ar ' + ar[1], text: ar[0] }),
+        el('div', { class: 'bd' }, titleNode,
+          el('span', { class: 'mt', text: (x.source || '') + (x.age_h != null ? ' · ' + ageTextHours(x.age_h) : '') })
+        )
+      ));
+    });
+    nc.append(list);
+    main.append(nc);
+  }
+}
+
+function drawChart(host, cd, r){
+  host.replaceChildren();
+  var W = Math.max(280, host.clientWidth || 340), H = 260, pR = 52, pB = 22, pT = 8, cw = W - pR, N = cd.length;
+  var vals = [];
+  cd.forEach(function(c){ vals.push(c.h, c.l); });
+  if(r && r.sup) vals.push(r.sup);
+  if(r && r.res) vals.push(r.res);
+  var lo = Math.min.apply(null, vals), hi = Math.max.apply(null, vals), pad = (hi - lo) * 0.05;
+  lo -= pad; hi += pad;
+  var y = function(p){ return pT + (hi - p) / (hi - lo) * (H - pT - pB); };
+  var x = function(i){ return (i + 0.5) / N * cw; };
+  var NS = 'http://www.w3.org/2000/svg';
+  var S = function(t, a){ var e = document.createElementNS(NS, t); for(var k in a) e.setAttribute(k, a[k]); return e; };
+  var svg = S('svg', { viewBox: '0 0 ' + W + ' ' + H, role: 'img', 'aria-label': 'نمودار شمعی روزانه طلا' });
+  for(var k = 0; k <= 4; k++){
+    var p = lo + (hi - lo) * k / 4, yy = y(p);
+    svg.append(S('line', { x1: 0, x2: cw, y1: yy, y2: yy, 'class': 'grid' }));
+    var tx = S('text', { x: cw + 4, y: yy + 4 });
+    tx.textContent = Math.round(p).toLocaleString('en-US');
+    svg.append(tx);
+  }
+  var bw = Math.max(1.5, cw / N * 0.62);
+  cd.forEach(function(c, i){
+    var cl = c.c >= c.o ? 'up' : 'dn';
+    svg.append(S('line', { x1: x(i), x2: x(i), y1: y(c.h), y2: y(c.l), 'class': cl, 'stroke-width': 1 }));
+    svg.append(S('rect', {
+      x: x(i) - bw / 2, y: y(Math.max(c.o, c.c)),
+      width: bw, height: Math.max(1, Math.abs(y(c.o) - y(c.c))), 'class': cl
+    }));
+  });
+  function line(key, cls){
+    var d = '';
+    cd.forEach(function(c, i){
+      if(c[key] == null) return;
+      d += (d ? 'L' : 'M') + x(i).toFixed(1) + ' ' + y(c[key]).toFixed(1);
+    });
+    if(d) svg.append(S('path', { d: d, 'class': cls }));
+  }
+  line('s50', 'm50'); line('s200', 'm200');
+  function lv(p, col){
+    if(!p) return;
+    svg.append(S('line', { x1: 0, x2: cw, y1: y(p), y2: y(p), stroke: col, 'stroke-width': 1, 'stroke-dasharray': '4 4' }));
+  }
+  if(r){ lv(r.sup, 'var(--good)'); lv(r.res, 'var(--bad)'); }
+  [0, 0.5, 1].forEach(function(f){
+    var i = Math.round((N - 1) * f);
+    var tx = S('text', { x: Math.min(cw - 30, Math.max(2, x(i) - 28)), y: H - 6 });
+    tx.textContent = cd[i].t;
+    svg.append(tx);
+  });
+  host.append(svg);
+}
+
+// live age refresh every 30s
+setInterval(updatePill, 30000);
+
+$('reload').onclick = function(){ load({ fromButton: true }); };
+document.addEventListener('visibilitychange', function(){
+  if(!document.hidden && state.data && state.data.updated &&
+     (Date.now() - new Date(state.data.updated).getTime()) > 10 * 60000) load();
+});
+var rz;
+window.addEventListener('resize', function(){
+  clearTimeout(rz);
+  rz = setTimeout(function(){ if(state.data) render(); }, 200);
+});
+load();
+})();
+</script>
+</body>
+</html>
